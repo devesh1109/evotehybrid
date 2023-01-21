@@ -18,5 +18,4 @@ public class EvotehybridApplication {
 		SpringApplication.run(EvotehybridApplication.class, args);
 		CreateConnection.registerAndEnrollAdmin();
 	}
-
 }

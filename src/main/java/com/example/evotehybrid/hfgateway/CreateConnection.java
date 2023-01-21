@@ -1,10 +1,7 @@
 package com.example.evotehybrid.hfgateway;
 
 import com.example.evotehybrid.configs.Config;
-import com.example.evotehybrid.models.Admin;
-import com.example.evotehybrid.models.Election;
-import com.example.evotehybrid.models.UserContext;
-import com.example.evotehybrid.models.Voter;
+import com.example.evotehybrid.models.*;
 import com.example.evotehybrid.util.Util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -24,6 +21,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.StringJoiner;
 
@@ -195,24 +193,87 @@ public class CreateConnection {
             return false;
         }
 
-        String electionId = "election_" + election1.getId() + "_" + election1.getYear();
+        String electionId = "election_" + election1.getId();
         try (Gateway gateway = connect(wallet, "admin")) {
 
             // Obtain a smart contract deployed on the network.
             Network network = gateway.getNetwork("mychannel");
-            Contract contract = network.getContract("electionContract");
-
-            // Submit transactions that store state to the ledger.
-            Gson gson = new Gson();
-            String electionJsonString = gson.toJson(election1);
-            JSONObject electionJson = new JSONObject(electionJsonString);
-            electionJson.put("id", electionId);
+            Contract contract = network.getContract("evoterContract");
             byte[] createVoterResult = contract.createTransaction("createElection")
-                    .submit(electionJson.toString());
+                    .submit(electionId, election1.getName(), String.valueOf(election1.getStartDate()),
+                            String.valueOf(election1.getEndDate()), election1.getConstituency(), election1.getCandidates());
             System.out.println(new String(createVoterResult, StandardCharsets.UTF_8));
 
             // Evaluate transactions that query state from the ledger.
             byte[] queryAllVoters = contract.evaluateTransaction("readElection", electionId);
+            System.out.println(new String(queryAllVoters, StandardCharsets.UTF_8));
+            return true;
+        } catch (ContractException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
+
+    public static boolean createBallot(Ballot ballot) throws IOException {
+        Wallet wallet = Wallets.newFileSystemWallet(Paths.get("wallet"));
+        // Check to see if we've already enrolled the admin user.
+        if (wallet.get("admin") == null) {
+            System.out.println("An identity for the admin user \"admin\" already exists in the wallet");
+            return false;
+        }
+
+        String ballotId = "ballot_" + ballot.getElectionId() + "_" + ballot.getVoterId();
+        try (Gateway gateway = connect(wallet, "admin")) {
+
+            // Obtain a smart contract deployed on the network.
+            Network network = gateway.getNetwork("mychannel");
+            Contract contract = network.getContract("evoterContract");
+//            String ballotId, String electionId, String voterId, String candidates,
+//                    String vote
+            byte[] createVoterResult = contract.createTransaction("createBallot")
+                    .submit(ballotId, String.valueOf(ballot.getElectionId()),
+                            String.valueOf(ballot.getVoterId()),
+                            ballot.getCandidates(), "");
+            System.out.println(new String(createVoterResult, StandardCharsets.UTF_8));
+
+            // Evaluate transactions that query state from the ledger.
+            byte[] queryAllVoters = contract.evaluateTransaction("readBallot", ballotId);
+            System.out.println(new String(queryAllVoters, StandardCharsets.UTF_8));
+            return true;
+        } catch (ContractException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
+
+    public static boolean updateBallot(Ballot ballot) throws IOException {
+        Wallet wallet = Wallets.newFileSystemWallet(Paths.get("wallet"));
+        // Check to see if we've already enrolled the admin user.
+        if (wallet.get("admin") == null) {
+            System.out.println("An identity for the admin user \"admin\" already exists in the wallet");
+            return false;
+        }
+
+        String ballotId = "ballot_" + ballot.getElectionId() + "_" + ballot.getVoterId();
+        try (Gateway gateway = connect(wallet, "admin")) {
+
+            // Obtain a smart contract deployed on the network.
+            Network network = gateway.getNetwork("mychannel");
+            Contract contract = network.getContract("evoterContract");
+//            String ballotId, String electionId, String voterId, String candidates,
+//                    String vote
+            byte[] createVoterResult = contract.createTransaction("updateBallot")
+                    .submit(ballotId, String.valueOf(ballot.getElectionId()),
+                            String.valueOf(ballot.getVoterId()),
+                            ballot.getCandidates(), ballot.getVote());
+            System.out.println(new String(createVoterResult, StandardCharsets.UTF_8));
+
+            // Evaluate transactions that query state from the ledger.
+            byte[] queryAllVoters = contract.evaluateTransaction("readBallot", ballotId);
             System.out.println(new String(queryAllVoters, StandardCharsets.UTF_8));
             return true;
         } catch (ContractException | IOException | InterruptedException e) {

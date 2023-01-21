@@ -32,7 +32,7 @@ public class CandidateHandler {
         Boolean isAuthenticated = candidateService.authenticate(login);
         HashMap<String, Object> result = new HashMap<>();
         result.put("isAuthenticated", isAuthenticated);
-        result.put("actions", new String[]{"viewAndUpdateCampaign", "viewResults"});
+        result.put("actions", new String[]{"viewResults"});
         return result;
     }
 }

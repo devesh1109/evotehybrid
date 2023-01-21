@@ -1,29 +1,29 @@
 package com.example.evotehybrid.models;
 
-
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "election")
-public class Election {
+@Table(name = "ballot")
+@AllArgsConstructor @NoArgsConstructor
+public class Ballot {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
-    private String name;
-    private String constituency;
-    private String year;
-    private String country;
-    private Long startDate;
-    private Long endDate;
-    private String candidates;
-    private String result;
-}
 
+    private String constituency;
+    private Long voterId;
+    private Long electionId;
+    private String candidates;
+    private String vote;
+
+    public Ballot(String constituency, Long id, Long id1, String candidates) {
+    }
+}

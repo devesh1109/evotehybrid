@@ -7,6 +7,7 @@ import com.example.evotehybrid.services.AdminService;
 import com.example.evotehybrid.services.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 
 @RestController("/admin")
 public class AdminHandler {
-    String[] validActions = {"createElection", "createBallots", "verifyBallots", "removeCandidate", "removeVoter",
+    String[] validActions = {"createElection", "removeCandidate", "removeVoter",
                             "announceResults", "approveCandidate"};
 
     @Autowired
@@ -34,11 +35,34 @@ public class AdminHandler {
     @PostMapping("/admin/election/create")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public HashMap<String, Object> createElection(@RequestBody Election election){
-        Election election1 = adminService.createElection(election);
+    public HashMap<String, Object> createElection(@RequestBody Election election, Login login){
+        Boolean isAuthenticated = adminService.authenticate(login);
         HashMap<String, Object> result = new HashMap<>();
-        result.put("result", "success");
-        result.put("election", election1);
+        if (isAuthenticated) {
+            Election election1 = adminService.createElection(election);
+            result.put("result", "success");
+            result.put("election", election1);
+        } else {
+            result.put("isAuthenticated", false);
+            result.put("result", "error");
+        }
+        return result;
+    }
+
+    @PostMapping("/admin/election/count")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public HashMap<String, Object> declareResults(@RequestBody Election election, Login login){
+        Boolean isAuthenticated = adminService.authenticate(login);
+        HashMap<String, Object> result = new HashMap<>();
+        if (isAuthenticated) {
+            String results = adminService.declareResults(election);
+            result.put("result", "success");
+            result.put("electionResults", results);
+        } else {
+            result.put("isAuthenticated", false);
+            result.put("result", "error");
+        }
         return result;
     }
 }

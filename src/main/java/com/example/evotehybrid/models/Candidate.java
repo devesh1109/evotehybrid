@@ -22,4 +22,5 @@ public class Candidate {
     private String walletId;
     private String votingCampaign;
     private String isApproved;
+    private String electionId;
 }

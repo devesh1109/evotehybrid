@@ -13,4 +13,6 @@ import java.util.List;
 public interface VoterRepository extends CrudRepository<Voter, Long> {
 
     Voter findByWalletId(String secret);
+
+    List<Voter> findByConstituency(String constituency);
 }

@@ -2,7 +2,9 @@ package com.example.evotehybrid.services;
 
 import com.example.evotehybrid.client.Login;
 import com.example.evotehybrid.hfgateway.CreateConnection;
+import com.example.evotehybrid.models.Ballot;
 import com.example.evotehybrid.models.Voter;
+import com.example.evotehybrid.repositories.BallotRepository;
 import com.example.evotehybrid.repositories.VoterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,9 @@ public class VoterService {
 
     @Autowired
     VoterRepository voterRepository;
+
+    @Autowired
+    BallotRepository ballotRepository;
 
     public List<Voter> getAllVoters(){
         List<Voter> voters = new ArrayList<>();
@@ -37,6 +42,21 @@ public class VoterService {
             if (exists) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    public boolean vote(Ballot ballot) {
+        try {
+            Ballot ballot1 = ballotRepository.findById(ballot.getId()).get();
+            boolean isVoted = CreateConnection.updateBallot(ballot);
+            if (isVoted) {
+                ballot1.setVote(ballot.getVote());
+                ballotRepository.save(ballot1);
+                return true;
+            }
+
+        } catch (Exception ex) {
         }
         return false;
     }
