@@ -29,7 +29,7 @@ public class VoterHandler {
     @PostMapping("/voter/vote")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public HashMap<String, Object> vote(@RequestBody Login login, Ballot ballot){
+    public HashMap<String, Object> vote(@RequestBody Login login, @RequestBody Ballot ballot){
         Boolean isAuthenticated = voterService.authenticate(login);
         HashMap<String, Object> result = new HashMap<>();
         if (isAuthenticated) {

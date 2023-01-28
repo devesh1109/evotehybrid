@@ -35,7 +35,7 @@ public class AdminHandler {
     @PostMapping("/admin/election/create")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public HashMap<String, Object> createElection(@RequestBody Election election, Login login){
+    public HashMap<String, Object> createElection(@RequestBody Election election, @RequestBody Login login){
         Boolean isAuthenticated = adminService.authenticate(login);
         HashMap<String, Object> result = new HashMap<>();
         if (isAuthenticated) {
@@ -52,7 +52,7 @@ public class AdminHandler {
     @PostMapping("/admin/election/count")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public HashMap<String, Object> declareResults(@RequestBody Election election, Login login){
+    public HashMap<String, Object> declareResults(@RequestBody Election election, @RequestBody Login login){
         Boolean isAuthenticated = adminService.authenticate(login);
         HashMap<String, Object> result = new HashMap<>();
         if (isAuthenticated) {

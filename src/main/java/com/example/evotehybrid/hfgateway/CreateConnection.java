@@ -34,6 +34,8 @@ public class CreateConnection {
     final private static Path DATA_NETWORK_DIRECTORY = Paths.get("/home/devilscar/Code/fabric/fabric-samples/evotehybrid/src/main/" +
             "resources/RhinodataOrg1GatewayConnection.json");
 
+    final static String ORG_1_ADMIN = "Org1 Admin";
+
     public static Gateway connect(Wallet wallet, String label) throws Exception{
         // Load a file system based wallet for managing identities.
         Path walletPath = Paths.get("wallet");
@@ -88,7 +90,7 @@ public class CreateConnection {
             final EnrollmentRequest enrollmentRequestTLS = new EnrollmentRequest();
             enrollmentRequestTLS.addHost("localhost");
             enrollmentRequestTLS.setProfile("tls");
-            Enrollment enrollment = caClient.enroll("admin", "adminpw", enrollmentRequestTLS);
+            Enrollment enrollment = caClient.enroll("admin_wallet", "adminpw", enrollmentRequestTLS);
             Identity user = Identities.newX509Identity(Config.ORG1_MSP, enrollment);
             wallet.put("admin", user);
             Admin admin = new Admin();
@@ -96,7 +98,7 @@ public class CreateConnection {
             admin.setName("admin");
             admin.setKycUuid("661319691231123");
             admin.setWalletId(enrollment.getKey().toString());
-            uploadAdminToDataFabric(admin);
+//            uploadAdminToDataFabric(admin);
             System.out.println("Successfully enrolled user \"admin\" and imported it into the wallet");
             return enrollment.getKey().toString();
         } catch (Exception e) {
@@ -107,7 +109,6 @@ public class CreateConnection {
 
     private static boolean uploadAdminToDataFabric(Admin admin) throws IOException {
         Wallet wallet = Wallets.newFileSystemWallet(Paths.get("wallet/data_wallet"));
-        final String ORG_1_ADMIN = "Org1 Admin";
         try(Gateway gw = connectCdnGateway(wallet, ORG_1_ADMIN)) {
             Network network = gw.getNetwork("mychannel");
             Contract contract = network.getContract("AdminContract");
@@ -194,7 +195,7 @@ public class CreateConnection {
         }
 
         String electionId = "election_" + election1.getId();
-        try (Gateway gateway = connect(wallet, "admin")) {
+        try (Gateway gateway = connectCdnGateway(wallet, ORG_1_ADMIN)) {
 
             // Obtain a smart contract deployed on the network.
             Network network = gateway.getNetwork("mychannel");
@@ -225,7 +226,7 @@ public class CreateConnection {
         }
 
         String ballotId = "ballot_" + ballot.getElectionId() + "_" + ballot.getVoterId();
-        try (Gateway gateway = connect(wallet, "admin")) {
+        try (Gateway gateway = connectCdnGateway(wallet, ORG_1_ADMIN)) {
 
             // Obtain a smart contract deployed on the network.
             Network network = gateway.getNetwork("mychannel");
@@ -259,7 +260,7 @@ public class CreateConnection {
         }
 
         String ballotId = "ballot_" + ballot.getElectionId() + "_" + ballot.getVoterId();
-        try (Gateway gateway = connect(wallet, "admin")) {
+        try (Gateway gateway = connectCdnGateway(wallet, ORG_1_ADMIN)) {
 
             // Obtain a smart contract deployed on the network.
             Network network = gateway.getNetwork("mychannel");
